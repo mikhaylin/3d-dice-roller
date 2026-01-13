@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Dice Roller</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>3D Dice Roller</h1>
+        
+        <div class="dice-scene">
+            <div class="dice">
+                <!-- Front face (1) -->
+                <div class="face front">
+                    <div class="dot center"></div>
+                </div>
+                <!-- Back face (6) -->
+                <div class="face back">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot middle-left"></div>
+                    <div class="dot middle-right"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <!-- Right face (2) -->
+                <div class="face right">
+                    <div class="dot top-right"></div>
+                    <div class="dot bottom-left"></div>
+                </div>
+                <!-- Left face (5) -->
+                <div class="face left">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot middle-center"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <!-- Top face (3) -->
+                <div class="face top">
+                    <div class="dot top-left"></div>
+                    <div class="dot middle-center"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+                <!-- Bottom face (4) -->
+                <div class="face bottom">
+                    <div class="dot top-left"></div>
+                    <div class="dot top-right"></div>
+                    <div class="dot bottom-left"></div>
+                    <div class="dot bottom-right"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="rollBtn" class="roll-button">
+                <i class="fas fa-dice"></i> Roll Dice
+            </button>
+            <div class="result">
+                Result: <span id="result">-</span>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <p>Click "Roll Dice" to throw the 3D dice and see the result!</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
