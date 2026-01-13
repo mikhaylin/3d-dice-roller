@@ -276,11 +276,18 @@ document.addEventListener('DOMContentLoaded', function() {
 		isRolling = true;
 		// Play roll sound at the start (adjust volume as needed)
 		playSound(rollSoundBuffer, 0.7);
+		if (!animationFrameId) {
+			cancelAnimationFrame(animationFrameId);
+		}
 		rollButton.disabled = true;
 		rollButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rolling...';
 		let verticalPosition = 0;
 		let verticalVelocity = 0.3;
 		const gravity = -0.015;
+
+		// Accessibility: Announce roll to screen readers
+		const liveRegion = document.getElementById('diceLiveRegion') || createLiveRegion();
+		liveRegion.textContent = 'Dice rolling...';
 
 		const targetFace = Math.floor(Math.random() * 6) + 1;
 		//console.log("Target:", targetFace);
@@ -324,8 +331,11 @@ document.addEventListener('DOMContentLoaded', function() {
 				dice.rotation.x = target.x;
 				dice.rotation.y = target.y;
 				dice.rotation.z = target.z;
-				resultElement.textContent = getTopFace();
+				const actualFace = getTopFace();
+				resultElement.textContent = actualFace;
 				playSound(stopSoundBuffer, 0.5);
+				// Accessibility announcement
+				announceResult(actualFace);
 				isRolling = false;
 				rollButton.disabled = false;
 				rollButton.innerHTML = '<i class="fas fa-dice"></i> Roll Dice';
@@ -403,6 +413,23 @@ document.addEventListener('DOMContentLoaded', function() {
 		if (!isRolling) dice.rotation.y += 0.0005;
 		renderer.render(scene, camera);
 		requestAnimationFrame(animateIdle);
+	}
+
+	// ARIA live region for screen readers
+	function createLiveRegion() {
+		const region = document.createElement('div');
+		region.id = 'diceLiveRegion';
+		region.className = 'sr-only';
+		region.setAttribute('aria-live', 'polite');
+		region.setAttribute('aria-atomic', 'true');
+		document.body.appendChild(region);
+		return region;
+	}
+
+	// Update result announcement
+	function announceResult(result) {
+		const liveRegion = document.getElementById('diceLiveRegion') || createLiveRegion();
+		liveRegion.textContent = `Dice stopped on number ${result}`;
 	}
 
 	// Initialize

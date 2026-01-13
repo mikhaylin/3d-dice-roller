@@ -31,17 +31,40 @@ dice-roller/
 └── README.md       # This documentation
 ```
 
+## Accessibility Features
+- **Screen reader support**: ARIA labels and live regions
+- **Keyboard navigation**: Full tab navigation with focus indicators
+- **Reduced motion**: Respects user's motion preferences
+- **High contrast**: Clear visual feedback for all actions
+
+## Performance Optimizations
+- **GPU acceleration**: `will-change` for smooth animations
+- **Efficient rendering**: Optimized Three.js render loop
+- **Reduced layout thrashing**: Batched DOM updates
+- **Image optimization**: Crisp rendering on all displays
+
 ## Recent Improvements
-- Migrated from CSS animations to Three.js for realistic 3D physics
-- Implemented proper dice rotation with chaotic start and smooth deceleration
-- Added accurate top-face detection for correct results
-- Optimized camera and lighting for better visual presentation
+- **Performance optimization**: Added `will-change` CSS property and optimized Three.js rendering
+- **Accessibility enhancements**: Full ARIA support, screen reader compatibility, keyboard navigation
+- **Sound system**: Web Audio API with mute functionality and user preference persistence
+- **Theme system**: Three color themes (classic, dark, neon) with localStorage persistence
+- **Physics refinement**: Realistic dice roll physics with bounce effect and smooth deceleration
 
 ## Future Enhancements
-- Multiple dice rolling simultaneously
-- Different dice themes and colors
-- Sound effects for rolling and stopping
-- Roll history and statistics
+- **Multiple dice**: Roll 2-5 dice simultaneously with combined results
+- **Advanced statistics**: Roll history, frequency charts, and probability analysis
+- **Custom dice**: Different dice types (d4, d8, d10, d20, d100)
+- **3D environments**: Interactive tables and backgrounds
+- **Multiplayer mode**: Online dice rolling with friends
+- **Export functionality**: Save results as image or share via social media
+
+## Accessibility
+This project follows web accessibility best practices:
+- **Screen reader support**: ARIA labels, live regions, and semantic HTML
+- **Keyboard navigation**: Full tab navigation with visible focus indicators
+- **Reduced motion**: Respects `@media (prefers-reduced-motion)` user preferences
+- **Color contrast**: All themes meet WCAG AA contrast standards
+- **Focus management**: Proper focus trapping during animations
 
 ## License
 MIT

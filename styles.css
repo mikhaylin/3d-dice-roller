@@ -183,3 +183,43 @@ h1 {
 	font-size: 1.1rem;
 	transition: transform 0.3s ease;
 }
+
+/* Performance Optimizations */
+.dice-scene canvas {
+    will-change: transform;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+/* Accessibility improvements */
+.roll-button:focus,
+.theme-btn:focus,
+.sound-btn:focus {
+    outline: 3px solid #667eea;
+    outline-offset: 2px;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .rolling {
+        animation-duration: 0.5s !important;
+    }
+    
+    .roll-button,
+    .theme-btn,
+    .sound-btn {
+        transition: none !important;
+    }
+}

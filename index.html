@@ -11,24 +11,39 @@
 <body>
 <div class="container">
 	<h1>3D Dice Roller</h1>
-	<div class="dice-scene" id="diceScene"></div>
+	<div class="dice-scene" id="diceScene" role="region" aria-label="3D Dice Display"><span class="sr-only">Interactive 3D dice. Press Roll Dice button to throw.</span></div>
 	<div class="controls">
-		<button id="rollBtn" class="roll-button">
-			<i class="fas fa-dice"></i> Roll Dice
+		<button id="rollBtn" class="roll-button" aria-label="Roll the dice">
+			<i class="fas fa-dice" aria-hidden="true"></i> 
+			<span>Roll Dice</span>
 		</button>
 		<div class="result">
 			Result: <span id="result">-</span>
 		</div>
 		<div class="theme-selector">
-			<button class="theme-btn classic active" data-theme="classic"><i class="fas fa-sun"></i> Classic</button>
-			<button class="theme-btn dark" data-theme="dark"><i class="fas fa-moon"></i> Dark</button>
-			<button class="theme-btn neon" data-theme="neon"><i class="fas fa-lightbulb"></i> Neon</button>
-			<button class="sound-btn" id="muteBtn" title="Toggle sound"><i class="fas fa-volume-up"></i> Sound</button>
+			<button class="theme-btn classic active" data-theme="classic" aria-pressed="true" aria-label="Classic theme">
+				<i class="fas fa-sun" aria-hidden="true"></i> 
+				<span class="sr-only">Classic</span> Classic
+			</button>
+			<button class="theme-btn dark" data-theme="dark" aria-pressed="false" aria-label="Dark theme">
+				<i class="fas fa-moon" aria-hidden="true"></i> 
+				<span class="sr-only">Dark</span> Dark
+			</button>
+			<button class="theme-btn neon" data-theme="neon" aria-pressed="false" aria-label="Neon theme">
+				<i class="fas fa-lightbulb" aria-hidden="true"></i> 
+				<span class="sr-only">Neon</span> Neon
+			</button>
+			<button class="sound-btn" id="muteBtn" aria-label="Toggle sound" aria-pressed="false">
+				<i class="fas fa-volume-up" aria-hidden="true"></i> 
+				<span>Sound</span>
+			</button>
 		</div>
 	</div>
 	<div class="instructions">
 		<p>Click "Roll Dice" to throw the 3D dice and see the result!</p>
 	</div>
+	<!-- Accessibility: Live region for screen readers -->
+	<div id="diceLiveRegion" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 </div>
 <script src="script.js"></script>
 </body>
