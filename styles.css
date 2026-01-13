@@ -137,3 +137,11 @@ h1 {
 .theme-btn i {
 	font-size: 1.1rem;
 }
+
+.theme-btn.neon {
+	background: linear-gradient(135deg, #ff00ff, #00ffff);
+	background-clip: padding-box;
+	color: white;
+	text-shadow: 0 0 5px rgba(255,255,255,0.5);
+	border: 2px solid transparent;
+}

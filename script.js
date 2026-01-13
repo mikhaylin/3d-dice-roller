@@ -69,6 +69,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			faceColor: '#222222',
 			borderColor: '#888888',
 			dotColor: '#ffffff'
+		},
+		neon: {
+			faceColor: '#0a0a1a',
+			borderColor: '#00ffff',
+			dotColor: '#ff00ff',
+			glow: true
 		}
 	};
 	// Function to create a canvas texture for each face
@@ -89,6 +95,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		ctx.strokeStyle = themeConfig.borderColor;
 		ctx.lineWidth = 6;
 		ctx.strokeRect(8, 8, 240, 240);
+		if (themeConfig.glow) {
+			ctx.shadowColor = themeConfig.dotColor;
+			ctx.shadowBlur = 15;
+		}
 		
 		// Draw dots based on the number (1-6)
 		ctx.fillStyle = themeConfig.dotColor;
@@ -120,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	function switchTheme(themeName) {
 		currentTheme = themeName;
+		localStorage.setItem('diceTheme', themeName);
 		
 		for (let i = 0; i < 6; i++) {
 			const ourFaceNumber = faceMapping[i];
@@ -304,4 +315,9 @@ document.addEventListener('DOMContentLoaded', function() {
 		camera.updateProjectionMatrix();
 		renderer.setSize(diceContainer.clientWidth, diceContainer.clientHeight);
 	});
+	// Restore saved theme on page load
+	const savedTheme = localStorage.getItem('diceTheme') || 'classic';
+	if (savedTheme) {
+		switchTheme(savedTheme);
+	}
 });
