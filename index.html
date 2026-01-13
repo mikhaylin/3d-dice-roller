@@ -9,38 +9,26 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-	<div class="container">
-		<h1>3D Dice Roller</h1>
-		
-		<div class="dice-scene" id="diceScene">
-			<!-- Three.js will render the 3D dice here -->
+<div class="container">
+	<h1>3D Dice Roller</h1>
+	<div class="dice-scene" id="diceScene"></div>
+	<div class="controls">
+		<button id="rollBtn" class="roll-button">
+			<i class="fas fa-dice"></i> Roll Dice
+		</button>
+		<div class="result">
+			Result: <span id="result">-</span>
 		</div>
-		
-		<div class="controls">
-			<button id="rollBtn" class="roll-button">
-				<i class="fas fa-dice"></i> Roll Dice
-			</button>
-			<div class="result">
-				Result: <span id="result">-</span>
-			</div>
-			<div class="theme-selector">
-				<button class="theme-btn classic active" data-theme="classic">
-					<i class="fas fa-sun"></i> Classic
-				</button>
-				<button class="theme-btn dark" data-theme="dark">
-					<i class="fas fa-moon"></i> Dark
-				</button>
-				<button class="theme-btn neon" data-theme="neon">
-					<i class="fas fa-lightbulb"></i> Neon
-				</button>
-			</div>
-		</div>
-		
-		<div class="instructions">
-			<p>Click "Roll Dice" to throw the 3D dice and see the result!</p>
+		<div class="theme-selector">
+			<button class="theme-btn classic active" data-theme="classic"><i class="fas fa-sun"></i> Classic</button>
+			<button class="theme-btn dark" data-theme="dark"><i class="fas fa-moon"></i> Dark</button>
+			<button class="theme-btn neon" data-theme="neon"><i class="fas fa-lightbulb"></i> Neon</button>
 		</div>
 	</div>
-
-	<script src="script.js"></script>
+	<div class="instructions">
+		<p>Click "Roll Dice" to throw the 3D dice and see the result!</p>
+	</div>
+</div>
+<script src="script.js"></script>
 </body>
 </html>
