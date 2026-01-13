@@ -24,45 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
 	// ========== CREATE 3D DICE ==========
 	const diceSize = 3;
 	const geometry = new THREE.BoxGeometry(diceSize, diceSize, diceSize);
-	let currentTheme = 'classic';
-
-	const themes = {
-		classic: {
-			faceColor: '#ffffff',
-			borderColor: '#333333',
-			dotColor: '#333333'
-		}
-	};
-	// Function to create a canvas texture for each face
-	function createFaceTexture(number, theme = 'classic') {
-		const canvas = document.createElement('canvas');
-		canvas.width = 256;
-		canvas.height = 256;
-		const ctx = canvas.getContext('2d');
-		
-		// Use the themes object that should be defined elsewhere
-		const themeConfig = themes[theme] || themes.classic;
-		
-		// Face background
-		ctx.fillStyle = themeConfig.faceColor;
-		ctx.fillRect(0, 0, 256, 256);
-		
-		// Face border
-		ctx.strokeStyle = themeConfig.borderColor;
-		ctx.lineWidth = 6;
-		ctx.strokeRect(8, 8, 240, 240);
-		
-		// Draw dots based on the number (1-6)
-		ctx.fillStyle = themeConfig.dotColor;
-		const dotPositions = getDotPositions(number);
-		dotPositions.forEach(pos => {
-			ctx.beginPath();
-			ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
-			ctx.fill();
-		});
-		
-		return new THREE.CanvasTexture(canvas);
-	}
 	
 	function getDotPositions(number) {
 		const center = 128; const offset = 70;
@@ -97,17 +58,85 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 		return positions;
 	}
+
+	const themes = {
+		classic: {
+			faceColor: '#ffffff',
+			borderColor: '#333333',
+			dotColor: '#333333'
+		},
+		dark: {
+			faceColor: '#222222',
+			borderColor: '#888888',
+			dotColor: '#ffffff'
+		}
+	};
+	// Function to create a canvas texture for each face
+	function createFaceTexture(number, theme = 'classic') {
+		const canvas = document.createElement('canvas');
+		canvas.width = 256;
+		canvas.height = 256;
+		const ctx = canvas.getContext('2d');
+		
+		// Use the themes object that should be defined elsewhere
+		const themeConfig = themes[theme] || themes.classic;
+		
+		// Face background
+		ctx.fillStyle = themeConfig.faceColor;
+		ctx.fillRect(0, 0, 256, 256);
+		
+		// Face border
+		ctx.strokeStyle = themeConfig.borderColor;
+		ctx.lineWidth = 6;
+		ctx.strokeRect(8, 8, 240, 240);
+		
+		// Draw dots based on the number (1-6)
+		ctx.fillStyle = themeConfig.dotColor;
+		const dotPositions = getDotPositions(number);
+		dotPositions.forEach(pos => {
+			ctx.beginPath();
+			ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+			ctx.fill();
+		});
+		
+		return new THREE.CanvasTexture(canvas);
+	}
 	
 	const faceMapping = [2, 5, 3, 4, 1, 6];
+	// Create materials for all 6 faces
 	const materials = [];
+	let currentTheme = 'classic';
+	
 	for (let i = 0; i < 6; i++) {
 		const ourFaceNumber = faceMapping[i];
 		materials.push(new THREE.MeshLambertMaterial({ 
-			map: createFaceTexture(ourFaceNumber, currentTheme) 
+			map: createFaceTexture(ourFaceNumber, currentTheme)
 		}));
 	}
 	const dice = new THREE.Mesh(geometry, materials);
 	scene.add(dice);
+
+	// ========== THEME MANAGEMENT ==========
+
+	function switchTheme(themeName) {
+		currentTheme = themeName;
+		
+		for (let i = 0; i < 6; i++) {
+			const ourFaceNumber = faceMapping[i];
+			dice.material[i].map = createFaceTexture(ourFaceNumber, currentTheme);
+			dice.material[i].needsUpdate = true;
+		}
+		
+		document.querySelectorAll('.theme-btn').forEach(btn => {
+			btn.classList.toggle('active', btn.dataset.theme === themeName);
+		});
+	}
+
+	document.querySelectorAll('.theme-btn').forEach(btn => {
+		btn.addEventListener('click', () => {
+			switchTheme(btn.dataset.theme);
+		});
+	});
 
 	// ========== DICE ROLL LOGIC ==========
 	const rollButton = document.getElementById('rollBtn');
