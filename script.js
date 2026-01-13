@@ -19,10 +19,10 @@ document.addEventListener('DOMContentLoaded', function() {
     scene.add(sideLight);
     
     camera.position.set(4, 6, 8);
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(0, 1, 0);
 
     // ========== CREATE 3D DICE ==========
-    const diceSize = 5;
+    const diceSize = 3;
     const geometry = new THREE.BoxGeometry(diceSize, diceSize, diceSize);
     
     function createFaceTexture(number) {
@@ -115,6 +115,10 @@ document.addEventListener('DOMContentLoaded', function() {
         isRolling = true;
         rollButton.disabled = true;
         rollButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rolling...';
+		let verticalPosition = 0;
+		let verticalVelocity = 0.3;
+		const gravity = -0.015;
+
         
         const targetFace = Math.floor(Math.random() * 6) + 1;
         console.log("Target:", targetFace);
@@ -145,6 +149,14 @@ document.addEventListener('DOMContentLoaded', function() {
         function animate() {
             const elapsed = Date.now() - startTime;
             const progress = Math.min(elapsed / totalDuration, 1);
+
+			verticalVelocity += gravity;
+			verticalPosition += verticalVelocity;
+			if (verticalPosition < 0) {
+				verticalPosition = 0;
+				verticalVelocity = -verticalVelocity * 0.8;
+			}
+			dice.position.y = verticalPosition;
             
             if (progress >= 1) {
                 dice.rotation.x = target.x;
