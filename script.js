@@ -1,72 +1,243 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const dice = document.querySelector('.dice');
+    // ========== THREE.JS SETUP ==========
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    
+    const diceContainer = document.getElementById('diceScene');
+    renderer.setSize(diceContainer.clientWidth, diceContainer.clientHeight);
+    diceContainer.appendChild(renderer.domElement);
+    
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    scene.add(ambientLight);
+    const topLight = new THREE.DirectionalLight(0xffffff, 0.9);
+    topLight.position.set(0, 10, 0);
+    scene.add(topLight);
+    const sideLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    sideLight.position.set(5, 3, 7);
+    scene.add(sideLight);
+    
+    camera.position.set(4, 6, 8);
+    camera.lookAt(0, 0, 0);
+
+    // ========== CREATE 3D DICE ==========
+    const diceSize = 5;
+    const geometry = new THREE.BoxGeometry(diceSize, diceSize, diceSize);
+    
+    function createFaceTexture(number) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, 256, 256);
+        ctx.strokeStyle = '#333333';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(8, 8, 240, 240);
+        ctx.fillStyle = '#333333';
+        const dotPositions = getDotPositions(number);
+        dotPositions.forEach(pos => {
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        return new THREE.CanvasTexture(canvas);
+    }
+    
+    function getDotPositions(number) {
+        const center = 128; const offset = 70;
+        const positions = [];
+        switch(number) {
+            case 1: positions.push({x: center, y: center}); break;
+            case 2:
+                positions.push({x: center - offset, y: center - offset});
+                positions.push({x: center + offset, y: center + offset}); break;
+            case 3:
+                positions.push({x: center - offset, y: center - offset});
+                positions.push({x: center, y: center});
+                positions.push({x: center + offset, y: center + offset}); break;
+            case 4:
+                positions.push({x: center - offset, y: center - offset});
+                positions.push({x: center - offset, y: center + offset});
+                positions.push({x: center + offset, y: center - offset});
+                positions.push({x: center + offset, y: center + offset}); break;
+            case 5:
+                positions.push({x: center - offset, y: center - offset});
+                positions.push({x: center - offset, y: center + offset});
+                positions.push({x: center, y: center});
+                positions.push({x: center + offset, y: center - offset});
+                positions.push({x: center + offset, y: center + offset}); break;
+            case 6:
+                positions.push({x: center - offset, y: center - offset});
+                positions.push({x: center - offset, y: center});
+                positions.push({x: center - offset, y: center + offset});
+                positions.push({x: center + offset, y: center - offset});
+                positions.push({x: center + offset, y: center});
+                positions.push({x: center + offset, y: center + offset}); break;
+        }
+        return positions;
+    }
+    
+    const faceMapping = [2, 5, 3, 4, 1, 6];
+    const materials = [];
+    for (let i = 0; i < 6; i++) {
+        materials.push(new THREE.MeshLambertMaterial({ map: createFaceTexture(faceMapping[i]) }));
+    }
+    const dice = new THREE.Mesh(geometry, materials);
+    scene.add(dice);
+
+    // ========== DICE ROLL LOGIC ==========
     const rollButton = document.getElementById('rollBtn');
     const resultElement = document.getElementById('result');
+    let isRolling = false;
+    let animationFrameId = null;
     
-    // Dice faces with their corresponding value and rotation
-    const diceFaces = [
-        { value: 1, rotation: { x: 0, y: 0 } },        // Front
-        { value: 6, rotation: { x: 0, y: 180 } },      // Back
-        { value: 2, rotation: { x: 0, y: -90 } },      // Right
-        { value: 5, rotation: { x: 0, y: 90 } },       // Left
-        { value: 3, rotation: { x: -90, y: 0 } },      // Top
-        { value: 4, rotation: { x: 90, y: 0 } }        // Bottom
-    ];
-    
-    // Function to roll the dice
+    function getTopFace() {
+        const worldUp = new THREE.Vector3(0, 1, 0);
+        const faceNormals = [
+            new THREE.Vector3(1, 0, 0), new THREE.Vector3(-1, 0, 0),
+            new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, -1, 0),
+            new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 0, -1)
+        ];
+        let maxDot = -Infinity;
+        let topFaceIndex = 0;
+        for (let i = 0; i < faceNormals.length; i++) {
+            const worldNormal = faceNormals[i].clone().applyQuaternion(dice.quaternion);
+            const dot = worldNormal.dot(worldUp);
+            if (dot > maxDot) { maxDot = dot; topFaceIndex = i; }
+        }
+        return faceMapping[topFaceIndex];
+    }
+
+    // ========== CORRECTED ROLL FUNCTION ==========
     function rollDice() {
-        // Remove any previous animation class
-        dice.classList.remove('rolling');
-        
-        // Trigger reflow to restart animation
-        void dice.offsetWidth;
-        
-        // Add rolling animation
-        dice.classList.add('rolling');
-        
-        // Disable button during roll
+        if (isRolling) return;
+        isRolling = true;
         rollButton.disabled = true;
         rollButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Rolling...';
         
-        // Generate random result after animation completes
-        setTimeout(() => {
-            // Get random face
-            const randomFaceIndex = Math.floor(Math.random() * diceFaces.length);
-            const selectedFace = diceFaces[randomFaceIndex];
+        const targetFace = Math.floor(Math.random() * 6) + 1;
+        console.log("Target:", targetFace);
+        
+        // FIXED: Store START rotation for interpolation
+        const startRotation = {
+            x: dice.rotation.x,
+            y: dice.rotation.y,
+            z: dice.rotation.z
+        };
+        
+        // Target rotations
+        const targetRotations = {
+            1: { x: -Math.PI/2, y: 0, z: 0 },
+            2: { x: -Math.PI/2, y: Math.PI/2, z: 0 },
+            3: { x: 0, y: 0, z: 0 },
+            4: { x: Math.PI, y: 0, z: 0 },
+            5: { x: -Math.PI/2, y: -Math.PI/2, z: 0 },
+            6: { x: Math.PI/2, y: Math.PI, z: 0 }
+        };
+        const target = targetRotations[targetFace];
+        
+        const startTime = Date.now();
+        const totalDuration = 2800;
+        
+        if (animationFrameId) cancelAnimationFrame(animationFrameId);
+        
+        function animate() {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / totalDuration, 1);
             
-            // Stop animation and apply final rotation
-            dice.classList.remove('rolling');
+            if (progress >= 1) {
+                dice.rotation.x = target.x;
+                dice.rotation.y = target.y;
+                dice.rotation.z = target.z;
+                resultElement.textContent = getTopFace();
+                isRolling = false;
+                rollButton.disabled = false;
+                rollButton.innerHTML = '<i class="fas fa-dice"></i> Roll Dice';
+                renderer.render(scene, camera);
+                return;
+            }
             
-            // Apply the rotation for the selected face
-            dice.style.transform = `rotateX(${selectedFace.rotation.x}deg) rotateY(${selectedFace.rotation.y}deg)`;
+            // ========== CLEAN SOLUTION: Single calculation method ==========
             
-            // Display result
-            resultElement.textContent = selectedFace.value;
+            // 1. Calculate how much EXTRA SPIN we need (fast at start, zero at end)
+            const totalExtraSpin = 10; // Total extra rotations
+            const extraSpin = totalExtraSpin * (1 - progress) * (1 - progress); // Quadratic deceleration
             
-            // Re-enable button
-            rollButton.disabled = false;
-            rollButton.innerHTML = '<i class="fas fa-dice"></i> Roll Dice';
+            // 2. Calculate the actual rotation for this frame
+            //    We interpolate from startRotation to target, PLUS extra spin
             
-            // Log result to console
-            console.log(`Dice rolled: ${selectedFace.value}`);
-        }, 1500); // Match animation duration
+            // Base interpolation (start -> target)
+            const baseProgress = progress;
+            
+            // Current base rotation (without extra spin)
+            const baseX = startRotation.x + (target.x - startRotation.x) * baseProgress;
+            const baseY = startRotation.y + (target.y - startRotation.y) * baseProgress;
+            const baseZ = startRotation.z + (target.z - startRotation.z) * baseProgress;
+            
+            // Add extra spin (decelerating)
+            const currentSpin = extraSpin * 2 * Math.PI; // Convert to radians
+            
+            // Apply extra spin around X axis (UP direction)
+            // The spin DECREASES over time because extraSpin decreases
+            const finalX = baseX + currentSpin;
+            const finalY = baseY + currentSpin * 0.3; // Some Y spin
+            const finalZ = baseZ; // Minimal Z
+            
+            // 3. Add CHAOS only in first 50%, decreasing over time
+            if (progress < 0.5) {
+                const chaosStrength = 0.8 * (1 - (progress / 0.5)); // Chaos decreases
+                
+                // Apply chaos as small random offsets
+                dice.rotation.x = finalX + (Math.random() - 0.5) * chaosStrength;
+                dice.rotation.y = finalY + (Math.random() - 0.5) * chaosStrength * 0.6;
+                dice.rotation.z = finalZ + (Math.random() - 0.5) * chaosStrength * 0.3;
+            } else {
+                // No chaos after 50%, pure decelerating spin
+                dice.rotation.x = finalX;
+                dice.rotation.y = finalY;
+                dice.rotation.z = finalZ;
+            }
+            
+            // 4. For the last 20%, ensure smooth alignment to exact target
+            if (progress > 0.8) {
+                const alignProgress = (progress - 0.8) / 0.2;
+                const ease = alignProgress * alignProgress; // Quadratic easing
+                
+                dice.rotation.x = dice.rotation.x * (1 - ease) + target.x * ease;
+                dice.rotation.y = dice.rotation.y * (1 - ease) + target.y * ease;
+                dice.rotation.z = dice.rotation.z * (1 - ease) + target.z * ease;
+            }
+            
+            renderer.render(scene, camera);
+            animationFrameId = requestAnimationFrame(animate);
+        }        
+        animationFrameId = requestAnimationFrame(animate);
+    }
+
+    // Event listeners
+    rollButton.addEventListener('click', rollDice);
+    document.addEventListener('keydown', (event) => {
+        if ((event.code === 'Space' || event.code === 'Enter') && !isRolling) {
+            event.preventDefault();
+            rollDice();
+        }
+    });
+
+    function animateIdle() {
+        if (!isRolling) dice.rotation.y += 0.0005;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animateIdle);
     }
     
-    // Add click event to roll button
-    rollButton.addEventListener('click', rollDice);
+    // Initialize
+    dice.rotation.x = 0; dice.rotation.y = 0; dice.rotation.z = 0;
+    resultElement.textContent = getTopFace();
+    animateIdle();
     
-    // Initialize with a random face
-    const initialFaceIndex = Math.floor(Math.random() * diceFaces.length);
-    const initialFace = diceFaces[initialFaceIndex];
-    dice.style.transform = `rotateX(${initialFace.rotation.x}deg) rotateY(${initialFace.rotation.y}deg)`;
-    resultElement.textContent = initialFace.value;
-    
-    // Add keyboard support (Space or Enter to roll)
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space' || event.code === 'Enter') {
-            if (!rollButton.disabled) {
-                rollDice();
-            }
-        }
+    window.addEventListener('resize', function() {
+        camera.aspect = diceContainer.clientWidth / diceContainer.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(diceContainer.clientWidth, diceContainer.clientHeight);
     });
 });

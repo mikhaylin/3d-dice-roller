@@ -31,72 +31,11 @@ h1 {
 }
 
 .dice-scene {
-    width: 200px;
-    height: 200px;
-    perspective: 1000px;
+    width: 300px;
+    height: 300px;
     margin: 0 auto 40px;
 }
 
-.dice {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    transform-style: preserve-3d;
-    transform: rotateX(0deg) rotateY(0deg);
-    transition: transform 0.5s ease-out;
-}
-
-.face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: white;
-    border: 2px solid #333;
-    border-radius: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* Positioning dice faces in 3D space */
-.front { transform: translateZ(100px); }
-.back { transform: translateZ(-100px) rotateY(180deg); }
-.right { transform: translateX(100px) rotateY(90deg); }
-.left { transform: translateX(-100px) rotateY(-90deg); }
-.top { transform: translateY(-100px) rotateX(90deg); }
-.bottom { transform: translateY(100px) rotateX(-90deg); }
-
-/* Dots styling */
-.dot {
-    width: 25px;
-    height: 25px;
-    background-color: #333;
-    border-radius: 50%;
-    position: absolute;
-}
-
-/* Positioning dots for each face */
-.center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-
-.top-left { top: 25px; left: 25px; }
-.top-right { top: 25px; right: 25px; }
-.middle-left { top: 50%; left: 25px; transform: translateY(-50%); }
-.middle-right { top: 50%; right: 25px; transform: translateY(-50%); }
-.middle-center { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-.bottom-left { bottom: 25px; left: 25px; }
-.bottom-right { bottom: 25px; right: 25px; }
-
-/* Dice animation */
-@keyframes roll {
-    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-    100% { transform: rotateX(720deg) rotateY(1080deg) rotateZ(360deg); }
-}
-
-.rolling {
-    animation: roll 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* Controls styling */
 .controls {
     margin: 30px 0;
 }
@@ -113,13 +52,18 @@ h1 {
     box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
 
-.roll-button:hover {
+.roll-button:hover:not(:disabled) {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
 }
 
 .roll-button:active {
     transform: translateY(1px);
+}
+
+.roll-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .roll-button i {
@@ -145,32 +89,4 @@ h1 {
     padding: 15px;
     background-color: rgba(102, 126, 234, 0.1);
     border-radius: 10px;
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
-    }
-    
-    h1 {
-        font-size: 2rem;
-    }
-    
-    .dice-scene {
-        width: 150px;
-        height: 150px;
-    }
-    
-    .front { transform: translateZ(75px); }
-    .back { transform: translateZ(-75px) rotateY(180deg); }
-    .right { transform: translateX(75px) rotateY(90deg); }
-    .left { transform: translateX(-75px) rotateY(-90deg); }
-    .top { transform: translateY(-75px) rotateX(90deg); }
-    .bottom { transform: translateY(75px) rotateX(-90deg); }
-    
-    .dot {
-        width: 18px;
-        height: 18px;
-    }
 }
