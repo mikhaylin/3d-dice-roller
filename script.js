@@ -215,9 +215,43 @@ document.addEventListener('DOMContentLoaded', function() {
 		}
 	})();
 
+	// Sound state management
+	let isSoundEnabled = true;
+	const muteButton = document.getElementById('muteBtn');
+
+	// Load saved sound preference
+	const savedSoundPref = localStorage.getItem('diceSoundEnabled');
+	if (savedSoundPref !== null) {
+		isSoundEnabled = savedSoundPref === 'true';
+		updateMuteButton();
+	}
+
+	// Update mute button appearance
+	function updateMuteButton() {
+		if (isSoundEnabled) {
+			muteButton.classList.remove('muted');
+			muteButton.innerHTML = '<i class="fas fa-volume-up"></i> Sound';
+			muteButton.title = "Mute sound";
+		} else {
+			muteButton.classList.add('muted');
+			muteButton.innerHTML = '<i class="fas fa-volume-mute"></i> Muted';
+			muteButton.title = "Unmute sound";
+		}
+	}
+
+	// Toggle sound function
+	function toggleSound() {
+		isSoundEnabled = !isSoundEnabled;
+		localStorage.setItem('diceSoundEnabled', isSoundEnabled);
+		updateMuteButton();
+	}
+
+	// Add click event to mute button
+	muteButton.addEventListener('click', toggleSound);
+
 	// 5. Function to play a sound
 	function playSound(audioBuffer, volume = 1.0) {
-		if (!audioContext || !audioBuffer) return null;
+		if (!isSoundEnabled || !audioContext || !audioBuffer) return null;
 
 		// Create source and gain nodes
 		const source = audioContext.createBufferSource();
